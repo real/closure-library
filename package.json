@@ -1,26 +1,18 @@
 {
-  "name": "google-closure-library",
-  "description": "Google's common JavaScript library",
-  "version": "20150920.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/google/closure-library.git"
+  "name" : "unreal-closure-library",
+  "version" : "20150605.0.0",
+  "description" : "Fork of closure-library that allows installation via NPM.",
+  "keywords" : ["javascript", "library", "google", "closure", "unreal"],
+  "repository" : {
+    "type" : "git",
+    "url" : "http://github.com/real/closure-library.git"
   },
-  "main": "closure/goog/bootstrap/nodejs.js",
-  "keywords": [
-    "javascript",
-    "library",
-    "goog",
-    "closure"
-  ],
-  "author": "The Closure Library Authors",
+  "homepage" : "https://github.com/real/closure-library",
+  "author" : {
+    "name" : "Ariel Saldana",
+    "email" : "ariel@unreal.io",
+    "url" : "https://github.com/arielsaldana"
+  },
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/google/closure-library/issues"
-  },
-  "homepage": "https://developers.google.com/closure/library/",
-  "devDependencies": {
-    "promise": "^7.0.4",
-    "protractor": "^2.1.0"
-  }
+  "main": "index.js"
 }
