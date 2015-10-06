@@ -1,0 +1,19 @@
+# emacs
+*~
+\#*#
+
+# python
+*.pyc
+
+*.css
+*.data
+*.gif
+*.html
+*.png
+*_test.js
+alltests.js
+closure/known_issues
+AUTHORS
+CONTRIBUTING
+README
+.travis.yml
