@@ -1,6 +1,6 @@
 {
   "name" : "unreal-closure-library",
-  "version" : "20150605.0.0",
+  "version" : "20150605.0.1",
   "description" : "Fork of closure-library that allows installation via NPM.",
   "keywords" : ["javascript", "library", "google", "closure", "unreal"],
   "repository" : {
