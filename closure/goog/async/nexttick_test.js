@@ -234,8 +234,7 @@ function testPostMessagePolyfillDoesNotPumpCallbackQueueIfMessageIsIncorrect() {
   frame.contentWindow.onerror = function(e) {
     error = e;
   };
-
-  return goog.Timer.promise(0).then(function() {
+  return goog.Timer.promise(3).then(function() {
     assert('Callback should have been called.', callbackCalled);
     assertNull('An unexpected error was thrown.', error);
   }).thenAlways(function() {

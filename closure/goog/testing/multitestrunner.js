@@ -83,6 +83,13 @@ goog.testing.MultiTestRunner = function(opt_domHelper) {
    * @private
    */
   this.failureReports_ = [];
+
+  /**
+   * Array of test result objects returned from G_testRunner.getTestResults for
+   * each individual test run.
+   * @private {!Array<!Object<string,!Array<string>>>}
+   */
+  this.allTestResults_ = [];
 };
 goog.inherits(goog.testing.MultiTestRunner, goog.ui.Component);
 
@@ -561,6 +568,15 @@ goog.testing.MultiTestRunner.prototype.getFailureReports = function() {
 
 
 /**
+ * Returns list of each frame's test results.
+ * @return {!Array<!Object<string,!Array<string>>>}
+ */
+goog.testing.MultiTestRunner.prototype.getAllTestResults = function() {
+  return this.allTestResults_;
+};
+
+
+/**
  * Deletes and re-creates the progress table inside the progess element.
  * @private
  */
@@ -679,6 +695,12 @@ goog.testing.MultiTestRunner.prototype.start = function() {
   this.clearStats_();
   this.showTab_(0);
 
+  // No tests to run, finish early and return.
+  if (this.activeTests_.length == 0) {
+    this.finish_();
+    return;
+  }
+
   // Ensure the pool isn't too big.
   while (this.getChildCount() > this.poolSize_) {
     this.removeChildAt(0, true).dispose();
@@ -736,6 +758,7 @@ goog.testing.MultiTestRunner.prototype.processResult = function(frame) {
     this.failureReports_.push(report);
   }
 
+  this.allTestResults_.push(frame.getTestResults());
   this.stats_.push(stats);
   this.finished_[test] = true;
 
@@ -812,13 +835,12 @@ goog.testing.MultiTestRunner.prototype.finish_ = function() {
   if (unfinished.length) {
     this.reportEl_.appendChild(goog.dom.createDom(
         goog.dom.TagName.PRE, undefined,
-        'Theses tests did not finish:\n' + unfinished.join('\n')));
+        'These tests did not finish:\n' + unfinished.join('\n')));
   }
 
   this.dispatchEvent({
     'type': goog.testing.MultiTestRunner.TESTS_FINISHED,
-    'totalTests': this.getAllTests().length,
-    'failureReports': this.getFailureReports()
+    'allTestResults': this.getAllTestResults()
   });
 };
 
@@ -1398,6 +1420,26 @@ goog.testing.MultiTestRunner.TestFrame.prototype.getReport = function() {
   return this.report_;
 };
 
+/**
+ * @return {!Object<string,!Array<string>>} The results per individual test in
+ *     the file. Key is the test filename concatenated with the test name, and
+ *     the array holds failures.
+ */
+goog.testing.MultiTestRunner.TestFrame.prototype.getTestResults = function() {
+  var results = {};
+  for (var testName in this.testResults_) {
+    var testKey = this.testFile_.replace(/\.html$/, '');
+    // Concatenate with ":<testName>" unless the testName is equivalent to
+    // testFile_, which means the test timed out and there's no way to get
+    // the test method name.
+    if (testName != this.testFile_) {
+      testKey += ':' + testName;
+    }
+    results[testKey] = this.testResults_[testName];
+  }
+  return results;
+};
+
 
 /**
  * @return {?boolean} Whether the test frame had a success.
@@ -1468,6 +1510,7 @@ goog.testing.MultiTestRunner.TestFrame.prototype.checkForCompletion_ =
         var tr = js['G_testRunner'];
         this.isSuccess_ = tr['isSuccess']();
         this.report_ = tr['getReport'](this.verbosePasses_);
+        this.testResults_ = tr['getTestResults']();
         this.runTime_ = tr['getRunTime']();
         this.numFilesLoaded_ = tr['getNumFilesLoaded']();
         this.finish_();
@@ -1479,6 +1522,9 @@ goog.testing.MultiTestRunner.TestFrame.prototype.checkForCompletion_ =
   if (goog.now() - this.lastStateTime_ > this.timeoutMs_) {
     this.report_ = this.testFile_ + ' timed out  ' +
         goog.testing.MultiTestRunner.STATES[this.currentState_];
+    var results = {};
+    results[this.testFile_] = [this.report_];
+    this.testResults_ = results;
     this.isSuccess_ = false;
     this.finish_();
     return;
